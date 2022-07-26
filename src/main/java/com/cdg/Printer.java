@@ -3,20 +3,20 @@ package com.cdg;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class Printer {
-    private final LogFileReader logFileReader;
+    private final LogParser logParser;
 
 
     public void print(){
-        HashMap<String,Integer> keyMap=logFileReader.getParser().getKeyMap();
-        HashMap<String,Integer> codeMap=logFileReader.getParser().getCodeMap();
-        HashMap<String,Integer> urlMap=logFileReader.getParser().getUrlMap();
-        HashMap<String,Integer> webMap=logFileReader.getParser().getWebMap();
-        HashMap<String,Integer> timeMap=logFileReader.getParser().getTimeMap();
+        Map<String,Integer> keyMap=logParser.getKeyMap();
+        Map<String,Integer> codeMap=logParser.getCodeMap();
+        Map<String,Integer> urlMap=logParser.getUrlMap();
+        Map<String,Integer> webMap=logParser.getWebMap();
+        Map<String,Integer> timeMap=logParser.getTimeMap();
 
         List<String> keySet1 = new ArrayList<>(keyMap.keySet());
         keySet1.sort(((o1, o2) -> keyMap.get(o2).compareTo(keyMap.get(o1))));
@@ -32,10 +32,8 @@ public class Printer {
         System.out.println("상위 3개의 API ServiceID와 각각의 요청 수");
         List<String> keySet2 = new ArrayList<>(urlMap.keySet());
         keySet2.sort(((o1, o2) -> urlMap.get(o2).compareTo(urlMap.get(o1))));
-        System.out.println(keySet2.get(0)+" "+urlMap.get(keySet2.get(0)));
-        System.out.println(keySet2.get(1)+" "+urlMap.get(keySet2.get(1)));
-        System.out.println(keySet2.get(2)+" "+urlMap.get(keySet2.get(2)));
-        System.out.println();
+        repeatPrint(urlMap, keySet2,3);
+
 
         System.out.println("피크 시간대");
         List<String> keySet3 = new ArrayList<>(timeMap.keySet());
@@ -51,5 +49,12 @@ public class Printer {
         for (String key:webMap.keySet()){
             System.out.println(key+" "+((double)webMap.get(key)/mo*100)+"%");
         }
+    }
+
+    private void repeatPrint(Map<String, Integer> urlMap, List<String> keySet2,int repeat) {
+        for(int x=0;x<repeat;x++){
+            System.out.println(keySet2.get(x)+" "+ urlMap.get(keySet2.get(x)));
+        }
+        System.out.println();
     }
 }
