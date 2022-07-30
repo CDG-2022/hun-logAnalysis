@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Getter
 public class LogParser {
-    private static String startUrl="http://apis.daum.net/search/";
+    private static final String FIXED_PREFIX_URL ="http://apis.daum.net/search/";
 
     private final Map<String,Integer> keyMap= new HashMap<>();
     private final Map<String,Integer> codeMap= new HashMap<>();
@@ -19,29 +19,29 @@ public class LogParser {
 
     public void parse(BufferedReader reader) throws IOException {
         while (true){
-            String[] urlLog = StringUtils.substringsBetween(reader.readLine(), "[", "]");
-            if (urlLog==null) break;
-            String state=urlLog[0];
-            String url=urlLog[1];
-            String browser=urlLog[2];
-            String callTime=urlLog[3];
+            String[] splitedLog = StringUtils.substringsBetween(reader.readLine(), "[", "]");
+            if (splitedLog==null) break;
+            String httpStatusCode=splitedLog[0];
+            String callUrl=splitedLog[1];
+            String browserType=splitedLog[2];
+            String calledDateTime=splitedLog[3];
 
-            mapPutter(codeMap,state);
+            mapPutter(codeMap,httpStatusCode);
 
-            url=StringUtils.removeStart(url,startUrl);
-            String sub=StringUtils.substringBetween(url,"apikey=","q");
+            callUrl=StringUtils.removeStart(callUrl, FIXED_PREFIX_URL);
+            String sub=StringUtils.substringBetween(callUrl,"apikey=","q");
 
-            if(url.contains("?")) {
-                String[] split = StringUtils.split(url, "?");
+            if(callUrl.contains("?")) {
+                String[] split = StringUtils.split(callUrl, "?");
                 String serviceID=split[0];
                 urlMap.put(serviceID, urlMap.getOrDefault(serviceID, 0) + 1);
             }
 
             mapPutter(keyMap,sub);
 
-            mapPutter(webMap,browser);
+            mapPutter(webMap,browserType);
 
-            mapPutter(timeMap,callTime);
+            mapPutter(timeMap,calledDateTime);
         }
     }
     public void mapPutter(Map<String,Integer> map ,String put){
