@@ -9,7 +9,7 @@ public class App
         LogParser logParser = new LogParser();
         LogFileReader reader = new LogFileReader(logParser);
         reader.read();
-        Printer printer = new Printer(reader);
+        Printer printer = new Printer(logParser);
         printer.print();
 
     }

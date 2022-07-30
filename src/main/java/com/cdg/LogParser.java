@@ -1,42 +1,50 @@
 package com.cdg;
-
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 public class LogParser {
-    private final HashMap<String,Integer> keyMap= new HashMap<>();
-    private final HashMap<String,Integer> codeMap= new HashMap<>();
-    private final HashMap<String,Integer> urlMap= new HashMap<>();
-    private final HashMap<String,Integer> webMap= new HashMap<>();
-    private final HashMap<String,Integer> timeMap= new HashMap<>();
+    private static final String FIXED_PREFIX_URL ="http://apis.daum.net/search/";
+
+    private final Map<String,Integer> keyMap= new HashMap<>();
+    private final Map<String,Integer> codeMap= new HashMap<>();
+    private final Map<String,Integer> urlMap= new HashMap<>();
+    private final Map<String,Integer> webMap= new HashMap<>();
+    private final Map<String,Integer> timeMap= new HashMap<>();
 
 
     public void parse(BufferedReader reader) throws IOException {
         while (true){
-            String[] strings = StringUtils.substringsBetween(reader.readLine(), "[", "]");
-            if (strings==null) break;
+            String[] splitedLog = StringUtils.substringsBetween(reader.readLine(), "[", "]");
+            if (splitedLog==null) break;
+            String httpStatusCode=splitedLog[0];
+            String callUrl=splitedLog[1];
+            String browserType=splitedLog[2];
+            String calledDateTime=splitedLog[3];
 
-            codeMap.put(strings[0],codeMap.getOrDefault(strings[0],0)+1);
+            mapPutter(codeMap,httpStatusCode);
 
-            strings[1]=StringUtils.removeStart(strings[1],"http://apis.daum.net/search/");
-            String sub=StringUtils.substringBetween(strings[1],"apikey=","q");
+            callUrl=StringUtils.removeStart(callUrl, FIXED_PREFIX_URL);
+            String sub=StringUtils.substringBetween(callUrl,"apikey=","q");
 
-            keyMap.put(sub,keyMap.getOrDefault(sub,0)+1);
-
-            if(strings[1].contains("?")) {
-                String[] split = StringUtils.split(strings[1], "?");
-                urlMap.put(split[0], urlMap.getOrDefault(split[0], 0) + 1);
+            if(callUrl.contains("?")) {
+                String[] split = StringUtils.split(callUrl, "?");
+                String serviceID=split[0];
+                urlMap.put(serviceID, urlMap.getOrDefault(serviceID, 0) + 1);
             }
 
-            webMap.put(strings[2],webMap.getOrDefault(strings[2],0)+1);
+            mapPutter(keyMap,sub);
 
-            timeMap.put(strings[3],timeMap.getOrDefault(strings[3],0)+1);
+            mapPutter(webMap,browserType);
+
+            mapPutter(timeMap,calledDateTime);
         }
     }
-
+    public void mapPutter(Map<String,Integer> map ,String put){
+        map.put(put,map.getOrDefault(put,0)+1);
+    }
 }
