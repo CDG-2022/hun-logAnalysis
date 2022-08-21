@@ -20,16 +20,16 @@ public class LogParser {
     public void parse(BufferedReader reader) throws IOException {
         while (true){
             String[] splitedLog = StringUtils.substringsBetween(reader.readLine(), "[", "]");
-            if (splitedLog==null) break;
+            if (splitedLog==null) { break;}
             String httpStatusCode=splitedLog[0];
             String callUrl=splitedLog[1];
             String browserType=splitedLog[2];
             String calledDateTime=splitedLog[3];
 
-            mapPutter(codeMap,httpStatusCode);
+            valueOfMap(codeMap,httpStatusCode);
 
             callUrl=StringUtils.removeStart(callUrl, FIXED_PREFIX_URL);
-            String sub=StringUtils.substringBetween(callUrl,"apikey=","q");
+            String sub=StringUtils.substringBetween(callUrl,"apikey=","&");
 
             if(callUrl.contains("?")) {
                 String[] split = StringUtils.split(callUrl, "?");
@@ -37,14 +37,14 @@ public class LogParser {
                 urlMap.put(serviceID, urlMap.getOrDefault(serviceID, 0) + 1);
             }
 
-            mapPutter(keyMap,sub);
+            valueOfMap(keyMap,sub);
 
-            mapPutter(webMap,browserType);
+            valueOfMap(webMap,browserType);
 
-            mapPutter(timeMap,calledDateTime);
+            valueOfMap(timeMap,calledDateTime);
         }
     }
-    public void mapPutter(Map<String,Integer> map ,String put){
+    public void valueOfMap(Map<String,Integer> map , String put){
         map.put(put,map.getOrDefault(put,0)+1);
     }
 }
